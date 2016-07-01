@@ -3,7 +3,7 @@
 <head>
 
 </head>
-<body onload="start()">
+<body>
 
 <script src="dependencies/simple-web-modules/index.js"></script>
 
@@ -69,6 +69,10 @@
             target.push(data[ i ]);
         }
     }
+
+    SM.DefineModule('main', function (require) {
+        start();
+    });
 
     function start() {
         canvas = document.getElementById("glcanvas");
