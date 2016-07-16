@@ -95,6 +95,15 @@
         this.initShaders();
         this.createBuffers();
         this.drawScene();
+
+        var self = this;
+        function animFrame() {
+          self.drawScene();
+
+          requestAnimationFrame(animFrame);
+        }
+
+        requestAnimationFrame(animFrame);
       },
 
       newRenderFrame: function () {
