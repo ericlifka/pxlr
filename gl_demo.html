@@ -74,18 +74,15 @@
   }
 
   SM.DefineModule('main', function (require) {
-    var renderer = require('pxlr/gl/webgl');
+    var Renderer = require('pxlr/gl/webgl');
 
+    var r = new Renderer();
     start();
   });
 
   SM.DefineModule('pxlr/gl/webgl', function (require) {
     var Frame = require('pxlr/gl/frame');
     var DomHelpers = require('pxlr/gl/dom-helpers');
-
-    function createCanvas() {
-
-    }
 
     return SM.DefineClass([DomHelpers, {
       width: 80,
@@ -94,6 +91,7 @@
 
       constructor: function (options) {
         this.canvasSetup(options || {});
+        this.createGl();
       },
 
       newRenderFrame: function () {
@@ -104,6 +102,14 @@
       },
       setFillColor: function (fillColor) {
 
+      },
+
+      createGl: function () {
+        this.gl = this.canvas.getContext("webgl");
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+        this.gl.clearDepth(1.0);                 // Clear everything
+        this.gl.enable(this.gl.DEPTH_TEST);           // Enable depth testing
+        this.gl.depthFunc(this.gl.LEQUAL);            // Near things obscure far things
       }
     }]);
   });
