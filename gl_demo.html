@@ -206,7 +206,7 @@
         logTime('start - buffers');
 
         var gl = this.gl;
-        var chunks = this.chunks = [
+        var chunks = [
           {
             vertices: [],
             generatedColors: [],
@@ -217,6 +217,8 @@
         var chunk = chunks[0];
         var height = this.height;
         var width = this.width;
+        var colorWidthStep = 1.0 / width;
+        var colorHeightStep = 1.0 / height;
 
         for (var h = 0; h < height; h++) {
           for (var w = 0; w < width; w++) {
@@ -277,6 +279,7 @@
 
         logTime('create buffers');
 
+        this.chunks = chunks;
         logTime('end - buffers');
       },
 
@@ -304,7 +307,7 @@
         // drawing the cube.
 
         this.mvTranslate([-100.0, -70.0, -200.0]);
-
+        self.setMatrixUniforms();
         // Draw the cube by binding the array buffer to the cube's vertices
         // array, setting attributes, and pushing it to GL.
 
@@ -321,7 +324,6 @@
 
           gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.cubeVerticesIndexBuffer);
 
-          self.setMatrixUniforms();
           gl.drawElements(gl.TRIANGLES, chunk.squareIndex / 4 * 6, gl.UNSIGNED_SHORT, 0);
         });
       },
