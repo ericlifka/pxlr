@@ -273,6 +273,8 @@
 
       drawScene: function () {
         var gl = this.gl;
+        var chunks = this.chunks;
+        var self = this;
 
         this.updateColors();
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -297,15 +299,14 @@
         // Draw the cube by binding the array buffer to the cube's vertices
         // array, setting attributes, and pushing it to GL.
 
-        var self = this;
-        this.chunks.forEach(function (chunk) {
+        chunks.forEach(function (chunk) {
           gl.bindBuffer(gl.ARRAY_BUFFER, chunk.cubeVerticesBuffer);
-          gl.vertexAttribPointer(this.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+          gl.vertexAttribPointer(self.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
           // Set the colors attribute for the vertices.
 
           gl.bindBuffer(gl.ARRAY_BUFFER, chunk.cubeVerticesColorBuffer);
-          gl.vertexAttribPointer(this.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+          gl.vertexAttribPointer(self.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
 
           // Draw the cube.
 
