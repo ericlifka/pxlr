@@ -94,6 +94,7 @@
         this.createGl();
         this.initShaders();
         this.createBuffers();
+        this.drawScene();
       },
 
       newRenderFrame: function () {
@@ -120,7 +121,7 @@
         var fragmentShader = this.getShader("shader-fs");
         var vertexShader = this.getShader("shader-vs");
 
-        var shaderProgram = gl.createProgram();
+        var shaderProgram = this.shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
         gl.linkProgram(shaderProgram);
@@ -132,11 +133,11 @@
 
         gl.useProgram(shaderProgram);
 
-        var vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-        gl.enableVertexAttribArray(vertexPositionAttribute);
+        this.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        gl.enableVertexAttribArray(this.vertexPositionAttribute);
 
-        var vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
-        gl.enableVertexAttribArray(vertexColorAttribute);
+        this.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+        gl.enableVertexAttribArray(this.vertexColorAttribute);
       },
 
       getShader: function (id) {
@@ -192,11 +193,11 @@
         return shader;
       },
 
-      createBuffers: function initBuffers() {
+      createBuffers: function () {
         logTime('start - buffers');
 
         var gl = this.gl;
-        var chunks = [
+        var chunks = this.chunks = [
           {
             vertices: [],
             generatedColors: [],
@@ -268,6 +269,93 @@
         logTime('create buffers');
 
         logTime('end - buffers');
+      },
+
+      drawScene: function () {
+        var gl = this.gl;
+
+        this.updateColors();
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        // Establish the perspective with which we want to view the
+        // scene. Our field of view is 45 degrees, with a width/height
+        // ratio of 640:480, and we only want to see objects between 0.1 units
+        // and 100 units away from the camera.
+
+        this.perspectiveMatrix = makePerspective(45, 200.0 / 150.0, 0.1, 200.0);
+
+        // Set the drawing position to the "identity" point, which is
+        // the center of the scene.
+
+        this.loadIdentity();
+
+        // Now move the drawing position a bit to where we want to start
+        // drawing the cube.
+
+        this.mvTranslate([-100.0, -70.0, -200.0]);
+
+        // Draw the cube by binding the array buffer to the cube's vertices
+        // array, setting attributes, and pushing it to GL.
+
+        var self = this;
+        this.chunks.forEach(function (chunk) {
+          gl.bindBuffer(gl.ARRAY_BUFFER, chunk.cubeVerticesBuffer);
+          gl.vertexAttribPointer(this.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+          // Set the colors attribute for the vertices.
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, chunk.cubeVerticesColorBuffer);
+          gl.vertexAttribPointer(this.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+
+          // Draw the cube.
+
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, chunk.cubeVerticesIndexBuffer);
+
+          self.setMatrixUniforms();
+          gl.drawElements(gl.TRIANGLES, chunk.squareIndex / 4 * 6, gl.UNSIGNED_SHORT, 0);
+        });
+      },
+
+      updateColors: function () {
+        var gl = this.gl;
+        var chunks = this.chunks;
+
+        chunks.forEach(function (chunk) {
+          for (var i = 0; i < chunk.generatedColors.length; i += 4) {
+            chunk.generatedColors[i] += colorWidthStep;
+            chunk.generatedColors[i + 1] += colorHeightStep;
+            if (chunk.generatedColors[i] > 1) {
+              chunk.generatedColors[i] -= 1;
+            }
+            if (chunk.generatedColors[i + 1] > 1) {
+              chunk.generatedColors[i + 1] -= 1;
+            }
+          }
+
+          gl.bindBuffer(gl.ARRAY_BUFFER, chunk.cubeVerticesColorBuffer);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(chunk.generatedColors), gl.STATIC_DRAW);
+        });
+      },
+
+      loadIdentity: function () {
+        this.mvMatrix = Matrix.I(4);
+      },
+
+      multMatrix: function (m) {
+        this.mvMatrix = this.mvMatrix.x(m);
+      },
+
+      mvTranslate: function (v) {
+        this.multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
+      },
+
+      setMatrixUniforms: function () {
+        var gl = this.gl;
+        var pUniform = gl.getUniformLocation(this.shaderProgram, "uPMatrix");
+        gl.uniformMatrix4fv(pUniform, false, new Float32Array(this.perspectiveMatrix.flatten()));
+
+        var mvUniform = gl.getUniformLocation(this.shaderProgram, "uMVMatrix");
+        gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.mvMatrix.flatten()));
       }
     }]);
   });
@@ -708,6 +796,7 @@ void main(void) {
     gl_FragColor = vColor;
 }
 
+
 </script>
 
 <script id="shader-vs" type="x-shader/x-vertex">
@@ -723,6 +812,7 @@ void main(void) {
     gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
     vColor = aVertexColor;
 }
+
 
 </script>
 
