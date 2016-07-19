@@ -6,6 +6,7 @@
 <body>
 
 <script src="dependencies/simple-web-modules/index.js"></script>
+<script src="lib/core/run-loop.js"></script>
 <script src="lib/gl/gl-frame.js"></script>
 <script src="lib/gl/dom-helpers.js"></script>
 <script src="lib/gl/webgl.js"></script>
@@ -14,9 +15,15 @@
 <script type="text/javascript">
 
   SM.DefineModule('main', function (require) {
+    var RunLoop = require('pxlr/core/run-loop');
     var Renderer = require('pxlr/gl/webgl');
 
-    var r = new Renderer();
+    var renderer = new Renderer();
+    var runLoop = new RunLoop(function () {
+      renderer.frame.updateColors();
+      renderer.drawScene();
+    });
+    runLoop.start();
   });
 
 </script>
