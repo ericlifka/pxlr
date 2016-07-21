@@ -20,9 +20,15 @@
 
     var renderer = new Renderer();
     var runLoop = new RunLoop(function () {
-      renderer.frame.updateColors();
-      renderer.drawScene();
+//      renderer.frame.updateColors();
+
+      let frame = renderer.newRenderFrame();
+      updateGradient(frame);
+      renderer.renderFrame(frame);
+
+//      renderer.drawScene();
     });
+
     runLoop.start();
   });
 
