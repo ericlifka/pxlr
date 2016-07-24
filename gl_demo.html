@@ -37,6 +37,8 @@
       let colorWidthStep = frame.colorWidthStep;
       let colorHeightStep = frame.colorHeightStep;
 
+      
+
       frame.chunks.forEach(chunk => {
         for (let i = 0; i < chunk.generatedColors.length; i += 4) {
           chunk.generatedColors[i] += colorWidthStep;
