@@ -19,7 +19,10 @@
     var RunLoop = require('pxlr/core/run-loop');
     var Renderer = require('pxlr/gl/webgl');
 
-    var renderer = new Renderer();
+    var renderer = new Renderer({
+      width: 200,
+      height: 150
+    });
     var runLoop = new RunLoop(function () {
       let frame = renderer.newRenderFrame();
       updateGradient(frame);
