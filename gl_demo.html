@@ -31,32 +31,22 @@
 
     runLoop.start();
 
+    let offset = 0.0;
+    function wraparound(val) {
+      return val > 1.0 ? val - 1.0 : val;
+    }
+
     function updateGradient(frame) {
       let gl = frame.gl;
       let colorWidthStep = 1.0 / frame.width;
       let colorHeightStep = 1.0 / frame.height;
 
-      frame.iterateCells((color, x, y) => {
-        color.setR(x * colorWidthStep);
-        color.setG(y * colorHeightStep);
-        // color.setR(1.0);
-        // color.setG(0.0);
-        // color.setB(0.0);
-      });
+      offset = wraparound(offset + 0.005);
 
-      // frame.chunks.forEach(chunk => {
-      //   for (let i = 0; i < chunk.generatedColors.length; i += 4) {
-      //     chunk.generatedColors[i] += colorWidthStep;
-      //     chunk.generatedColors[i + 1] += colorHeightStep;
-      //     if (chunk.generatedColors[i] > 1) {
-      //       chunk.generatedColors[i] -= 1;
-      //     }
-      //     if (chunk.generatedColors[i + 1] > 1) {
-      //       chunk.generatedColors[i + 1] -= 1;
-      //     }
-      //   }
-      //
-      // });
+      frame.iterateCells((color, x, y) => {
+        color.setR(wraparound(x * colorWidthStep + offset));
+        color.setG(wraparound(y * colorHeightStep + offset));
+      });
     }
   });
 
