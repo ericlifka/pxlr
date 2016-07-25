@@ -21,39 +21,36 @@
 
     var renderer = new Renderer();
     var runLoop = new RunLoop(function () {
-//      renderer.frame.updateColors();
-
       let frame = renderer.newRenderFrame();
       updateGradient(frame);
       renderer.renderFrame(frame);
-
-//      renderer.drawScene();
     });
 
     runLoop.start();
 
     function updateGradient(frame) {
       let gl = frame.gl;
-      let colorWidthStep = frame.colorWidthStep;
-      let colorHeightStep = frame.colorHeightStep;
+      let colorWidthStep = 1.0 / frame.width;
+      let colorHeightStep = 1.0 / frame.height;
 
-      
-
-      frame.chunks.forEach(chunk => {
-        for (let i = 0; i < chunk.generatedColors.length; i += 4) {
-          chunk.generatedColors[i] += colorWidthStep;
-          chunk.generatedColors[i + 1] += colorHeightStep;
-          if (chunk.generatedColors[i] > 1) {
-            chunk.generatedColors[i] -= 1;
-          }
-          if (chunk.generatedColors[i + 1] > 1) {
-            chunk.generatedColors[i + 1] -= 1;
-          }
-        }
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, chunk.verticesColorBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(chunk.generatedColors), gl.STATIC_DRAW);
+      frame.iterateCells((color, x, y) => {
+        color.setR(x * colorWidthStep);
+        color.setG(y * colorHeightStep);
       });
+
+      // frame.chunks.forEach(chunk => {
+      //   for (let i = 0; i < chunk.generatedColors.length; i += 4) {
+      //     chunk.generatedColors[i] += colorWidthStep;
+      //     chunk.generatedColors[i + 1] += colorHeightStep;
+      //     if (chunk.generatedColors[i] > 1) {
+      //       chunk.generatedColors[i] -= 1;
+      //     }
+      //     if (chunk.generatedColors[i + 1] > 1) {
+      //       chunk.generatedColors[i + 1] -= 1;
+      //     }
+      //   }
+      //
+      // });
     }
   });
 
