@@ -18,36 +18,35 @@
   SM.DefineModule('main', function (require) {
     var RunLoop = require('pxlr/core/run-loop');
     var Renderer = require('pxlr/gl/webgl');
+    var Sprite = require('pxlr/core/sprite');
 
-    var renderer = new Renderer({
-      width: 200,
-      height: 150
-    });
+    let width = 200;
+    let height = 150;
+    let colorWidthStep = 256 / width;
+    let colorHeightStep = 256 / height;
+    let offset = 0;
+    let sprite = Sprite.newEmptySprite({ width, height });
+
+    var renderer = new Renderer({ width, height });
     var runLoop = new RunLoop(function () {
       let frame = renderer.newRenderFrame();
-      updateGradient(frame);
+
+      updateGradient();
+      sprite.renderToFrame(frame);
+
       renderer.renderFrame(frame);
     });
 
-    runLoop.start();
+    function updateGradient() {
+      offset = (offset + 1) % 256;
 
-    let offset = 0.0;
-    function wraparound(val) {
-      return val > 1.0 ? val - 1.0 : val;
-    }
-
-    function updateGradient(frame) {
-      let gl = frame.gl;
-      let colorWidthStep = 1.0 / frame.width;
-      let colorHeightStep = 1.0 / frame.height;
-
-      offset = wraparound(offset + 0.005);
-
-      frame.iterateCells((color, x, y) => {
+      sprite.iterateCells((color, x, y) => {
         color.setR(wraparound(x * colorWidthStep + offset));
         color.setG(wraparound(y * colorHeightStep + offset));
       });
     }
+
+    runLoop.start();
   });
 
 </script>
