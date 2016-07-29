@@ -6,12 +6,14 @@
 <body>
 
 <script src="dependencies/simple-web-modules/index.js"></script>
+<script src="lib/core/cell-grid.js"></script>
 <script src="lib/core/run-loop.js"></script>
+<script src="lib/core/RGB-color.js"></script>
+<script src="lib/core/sprite.js"></script>
 <script src="lib/gl/gl-frame.js"></script>
 <script src="lib/gl/buffer-color.js"></script>
 <script src="lib/gl/dom-helpers.js"></script>
 <script src="lib/gl/webgl.js"></script>
-<script src="lib/core/cell-grid.js"></script>
 
 <script type="text/javascript">
 
@@ -41,8 +43,8 @@
       offset = (offset + 1) % 256;
 
       sprite.iterateCells((color, x, y) => {
-        color.setR(wraparound(x * colorWidthStep + offset));
-        color.setG(wraparound(y * colorHeightStep + offset));
+        color.setR(x * colorWidthStep + offset);
+        color.setG(y * colorHeightStep + offset);
       });
     }
 
