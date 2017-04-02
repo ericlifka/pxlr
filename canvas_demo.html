@@ -10,20 +10,20 @@
 <script src="lib/core/run-loop.js"></script>
 <script src="lib/core/RGB-color.js"></script>
 <script src="lib/core/sprite.js"></script>
-<script src="lib/gl/gl-frame.js"></script>
+<script src="lib/gl/frame.js"></script>
 <script src="lib/gl/buffer-color.js"></script>
 <script src="lib/gl/dom-helpers.js"></script>
-<script src="lib/gl/webgl.js"></script>
+<script src="lib/gl/canvas.js"></script>
 
 <script type="text/javascript">
 
   SM.DefineModule('main', function (require) {
     let RunLoop = require('pxlr/core/run-loop');
-    let Renderer = require('pxlr/gl/webgl');
+    let Renderer = require('pxlr/gl/canvas');
     let Sprite = require('pxlr/core/sprite');
 
-    let width = 250;
-    let height = 150;
+    let width = 40;
+    let height = 30;
     let colorWidthStep = 256 / width;
     let colorHeightStep = 256 / height;
     let offset = 0;
@@ -43,9 +43,9 @@
       offset = (offset + 1) % 256;
 
       sprite.iterateCells((color, x, y) => {
-	if (x % 2 === 0 && y % 2 === 0) {
-          color.setR(0.0);
-          color.setG(0.0);
+        if (x % 2 === 0 && y % 2 === 0) {
+          color.setR(0);
+          color.setG(0);
         } else {
           color.setR(x * colorWidthStep + offset);
           color.setG(y * colorHeightStep + offset);
